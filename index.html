@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>idGames Beer Pairing Finder</title>
+    <link href="https://fonts.googleapis.com/css?family=Forum|Turret+Road&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="styles/styles.css">
+</head>
+<body>
+    <header>
+        <div class="wrapper">
+            <h1>idGames Beer Pairing Finder</h1>
+            <p class="capitalize">Beverage matches made in hell!</p>
+        </div>
+    </header>
+    <main>
+        <div class="wrapper">
+            <form class='box flex-container'>
+                <div>
+                    <label for="query-type">Action:</label>
+                    <select name="query-type" id="query-type" autocomplete=off>
+                        <option value="search">Search</option>
+                        <option value="latestfiles">Latest uploads</option>
+                        <option value="latestvotes">Most recently rated</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="query">Query to submit:</label>
+                    <input id="query" type='text' minlength=3>
+                </div>
+                <div>
+                    <label for="query-by">Query by:</label>
+                    <select name="query-by" id="query-by">
+                        <option value="title">Title</option>
+                        <option value="filename">File name</option>
+                        <option value="author">Author name</option>
+                        <option value="description">Description</option>
+                        <option value="credits">Credits</option>
+                        <option value="editor">Editors used</option>
+                        <option value="textfile">Text file</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sort-by">Sort results by:</label>
+                    <select name="sort-by" id="sort-by">
+                        <option value="rating">Rating</option>
+                        <option value="date">Date</option>
+                        <option value="filename">File name</option>
+                        <option value="size">File size</option>
+                    </select>
+                </div>
+
+                <div class='ascDesc'>
+                    <input type='radio' id='asc' name='ascDesc' value='asc' checked>
+                    <label for="asc">Ascending order</label>
+                    <input type='radio' id='desc' name='ascDesc' value='desc'>
+                    <label for="desc">Descending order</label>
+                </div>
+
+                <div><p class="warning hide">Query must be at least 3 characters long!</p></div>
+                <input type="submit" value="Submit query">
+            </form>
+            <div class="wad-container">
+                <ul class="wad-list">
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="wrapper">
+            <p>Special thanks to the <a href="https://www.doomworld.com/idgames/api/">idGames API</a>, and the <a href="https://www.doomworld.com/idgames/">idGames archive.</a> Thank you as well to <a href="https://doomwiki.org/wiki/">Doom Wiki</a> and to the <a href="http://ontariobeerapi.ca/">Ontario Beer API.</a></p>
+        </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script src="scripts/project2.js"></script>
+</body>
+</html>
