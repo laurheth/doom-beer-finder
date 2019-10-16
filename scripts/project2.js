@@ -4,9 +4,13 @@
 // Turns out, they have an API, so I'm going to have some fun with it :)
 
 const app = {};
+// url for the idGames archive on DoomWorld
 app.idGamesUrl = 'https://www.doomworld.com/idgames/api/api.php';
+// url for Doom Wiki
 app.doomWikiUrl = 'https://doomwiki.org/w/api.php';
+// Once a page has been found on DoomWiki, this is the root path for images
 app.doomWikiImgRoot = 'https://doomwiki.org/wiki/Special:Filepath';
+// Ontario Beer Store API
 app.beerStoreUrl = 'http://ontariobeerapi.ca/beers/';
 app.beers = null;
 
@@ -20,14 +24,15 @@ app.init = function() {
     app.$sortBy = $('#sort-by');
     app.$ascDesc = $('input[name="ascDesc"]');
 
+    // Get beers from the Ontario Beer Api right off the bat. The API doesn't actually take any arguments, so it's easiest just to grab it from the get-go
     const beerPromise = app.getBeers();
 
+    // Store the result of the beer query (aka the "beery")
     beerPromise.then(function(result) {
         app.beers = result;
-        // console.log(app.beers);
     })
 
-    // event listeners for each section
+    // event listeners for each wad to get extra details
     $('.wad-list').on("click", ".wad-item.summary", function(e) {
         // $(this).addClass('hide');
         e.preventDefault();
@@ -55,6 +60,7 @@ app.init = function() {
     });
 
     // Event listener for action. Enable or disable inputs that are not needed
+    // only search takes input; latestwads or latestvotes just get the list of recent
     app.$actionInput.on('change', function() {
         if (app.$actionInput.val() !== 'search') {
             app.$queryInput.attr("disabled",true);
@@ -91,7 +97,7 @@ app.getWads = async function(action='search', query="", type='title', sort='date
                 }
             }
         });
-        // console.log(searchResults);
+        // slightly renamed keys in the latestvotes option, since it is technically getting vote ID's instead of file ID's. Same information is present though.
         if (action==='latestvotes') {
             app.showWads(searchResults.content.vote,'file');
         }
@@ -107,9 +113,9 @@ app.getWads = async function(action='search', query="", type='title', sort='date
     }
 };
 
-// Do something with the results of the query
+// Do something with the results of the query.
 app.showWads = function(wads,idKey='id') {
-    // An array isn't returned if there is only one reason. Easier to just make it an array here than to add more complicated handling later.
+    // An array isn't returned if there is only one result. Easier to just make it an array here than to add more complicated handling later.
     if (!Array.isArray(wads)) {
         wads = [wads];
     }
@@ -117,6 +123,7 @@ app.showWads = function(wads,idKey='id') {
     $wadList = $('.wad-list');
     $wadList.empty();
 
+    // For every wad returned, append a summary of it as a search result
     wads.forEach(function(wad) {
         if (wad.title === null) {
             wad.title = "Not named."
@@ -159,6 +166,7 @@ app.showBox = function(contents, addClass="") {
 app.getWadDetails = async function(wadID) {
     const $wadElement = $(`#${wadID}`);
     try {
+        // query the idgames archive for full details
         const getResults = await $.ajax({
             url: 'http://proxy.hackeryou.com',
             dataType: 'json',
@@ -172,10 +180,10 @@ app.getWadDetails = async function(wadID) {
                 }
             } 
         });
+
+        // get a beer pairing!
         const pairing = await app.pairBeer(getResults.content);
-        // console.log(getResults.content);
-        // $(`#${wadID} .wad-anchor`).addClass('hide');
-        // console.log($wadElement);
+
         app.showWadDetails($wadElement, getResults.content, pairing);
     } catch(err) {
         console.log(err);
@@ -253,7 +261,7 @@ app.showWadDetails = function($element, wadDetails, beerPairing) {
     </div>`;
     $element.append(detailsHtml);
 
-    // Add in reviews somehow...
+    // Add in reviews section if they exist
     if (wadDetails.reviews.review !== null) {
         let reviewArr = wadDetails.reviews.review;
         let reviewHtml='';
@@ -274,6 +282,7 @@ app.showWadDetails = function($element, wadDetails, beerPairing) {
         $element.append(reviewHtml);
     }
 
+    // Search the Doom Wiki for the wad, and use it to generate a gallery. If no results, it's fine! We still have the idGames info and the beer pairing.
     searchWikiResult.then(function(result) {
         if (result.length===0) {
             return;
@@ -311,9 +320,9 @@ app.pairBeer = async function(wad) {
             continue;
         }
         let beerSizeArr = beer.size.toLowerCase().split(" ");
-        // let beerVolume = parseFloat(beerSizeArr[0]) * parseFloat(beerSizeArr[5]);
-        // console.log(beerSizeArr[5].split());
-        let weight = wadRating * (parseFloat(beer.price)/parseFloat(beerSizeArr[0]) - 2*parseFloat(beer.abv));// + Math.floor(Math.random()*50);
+
+        let weight = wadRating * (parseFloat(beer.price)/parseFloat(beerSizeArr[0]) - 2*parseFloat(beer.abv));
+
         if (parseInt(wad.votes)===0) {
             weight=1;
         } 
@@ -393,6 +402,7 @@ app.searchWiki = async function(rawTitle) {
     let title = ((rawTitle.split('-')[0]).split('(')[0]).trim();
     let searchResults=null;
     // Try twice, once with the capitalization given and once with first letters only
+    // A bunch of wad authors do weird stuff with their titles, and this often makes it hard to get the exact match on Doom Wiki for some significant wads.
     for (let i=0;i<2;i++) {
         searchResults = await $.ajax({
             url: app.doomWikiUrl,
@@ -435,6 +445,7 @@ app.searchWiki = async function(rawTitle) {
     });
     const imgArray = searchPageInfo.parse.images;
     const imgSrcArray = imgArray.filter(function(img) {
+        // omit these images!
         const omitImg=['Cacoward.png','Under_construction_icon-yellow.svg','Gold_Hissy.png','Doom2_title.png','NIWA_logo.png','Quake_Wiki_Logo.png','Top100.png'];
         return !(omitImg.includes(img));
     }).map(function(img) {
