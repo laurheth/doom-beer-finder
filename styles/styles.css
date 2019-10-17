@@ -80,10 +80,10 @@ a {
     border-bottom: 2px black solid;
 }
 
-header a:hover,
-header a:focus,
-footer a:hover,
-footer a:focus {
+a:hover,
+a:focus,
+a:hover,
+a:focus {
     border-color: red;
 }
 
@@ -125,6 +125,7 @@ body {
 
 form {
     width: 50%;
+    min-width: 360px;
     margin: 2rem auto;
     display: flex;
     flex-direction: column;
@@ -149,11 +150,15 @@ form select {
     width: 50%;
     font-family: 'Forum', serif;
     border-radius: 5px;
-    text-transform: capitalize;
     background: black;
     color: white;
     border: 2px darkred solid;
     transition: 0.3s;
+}
+
+form input[type='submit'],
+form select {
+    text-transform: capitalize;
 }
 
 form input[type='submit']:hover,
@@ -167,8 +172,14 @@ form select:disabled {
     border-color: gray;
 }
 
+form .radioDiv {
+    display: flex;
+    align-items: center;
+    justify-content: center;    
+}
+
 .wad-item p {
-    margin: 0.5rem 0;
+    margin: 1rem 0;
 }
 
 .wad-details {
@@ -181,12 +192,40 @@ form select:disabled {
 }
 
 .info-item {
-    font-weight: bold;
+    font-weight: bolder;
 }
 
 .do-fade-in {
     animation-duration: 1s;
     animation-name: fadein;
+}
+
+.text-file {
+    overflow-x: hidden;
+    overflow-y: hidden;
+    font-size: 1.4rem;
+    border: 0px black solid;
+    padding: 0rem;
+    scrollbar-color: red black;
+    height: 0px;
+    /* display: none; */
+    visibility: hidden;
+    transition: 1s;
+    text-align: center;
+}
+
+.text-open {
+    overflow-y: scroll;
+    border: 1px red solid;
+    padding: 0.5rem;
+    height: 480px;
+    visibility: visible;
+}
+
+pre {
+    display: inline-block;
+    text-align: left;
+    white-space: pre-wrap;
 }
 
 /* Gallery */
@@ -242,6 +281,11 @@ img {
     max-height: 500px;
     overflow-y: auto;
     scrollbar-color: red black;
+    margin: 0.5rem 0;
+}
+
+.scrollbox a {
+    border: 2px solid black;
 }
 
 @keyframes fadein {
@@ -264,4 +308,45 @@ img {
 
 .capitalize {
     text-transform: capitalize;
+}
+
+@media (max-width: 800px) {
+    .gallery .img-container {
+        width: calc(50% - 2rem);
+    }
+}
+
+@media (max-width:650px) {
+    .detailsBeerContainer {
+        flex-direction: column;
+    }
+    .beer {
+        margin-left: 0;
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 500px) {
+    .gallery .img-container {
+        width: calc(100%);
+    }
+    form {
+        width: 100%;
+        min-width: 100%;
+    }
+    form > div {
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .ascDesc {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .radioDiv {
+        width: 100%;
+    }
 }

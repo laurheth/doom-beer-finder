@@ -2,6 +2,8 @@
 // WAD means "Where's All the Data" and is the file format ID software created for Doom maps back in the day. Fan-made wads continue to be built to this day, and are generally uploaded to the idGames archive.
 // The idGames archive also includes maps for Heretic, Strife, and Hexen (and other games with the same engine?)
 // Turns out, they have an API, so I'm going to have some fun with it :)
+// There is also an API for the Doom Wiki. Most maps aren't on the wiki, but noteworthy/well known/old ones might be. So, that API gets queried too to get a screenshot gallery and wiki link; if no wiki page is found, or it has no images, that's fine; that information is simply omitted.
+// Lastly, there is an API for the Ontario Beer Store. Why not find beer pairings?
 
 const app = {};
 // url for the idGames archive on DoomWorld
@@ -10,6 +12,7 @@ app.idGamesUrl = 'https://www.doomworld.com/idgames/api/api.php';
 app.doomWikiUrl = 'https://doomwiki.org/w/api.php';
 // Once a page has been found on DoomWiki, this is the root path for images
 app.doomWikiImgRoot = 'https://doomwiki.org/wiki/Special:Filepath';
+app.doomWikiDocRoot = 'https://doomwiki.org/wiki';
 // Ontario Beer Store API
 app.beerStoreUrl = 'http://ontariobeerapi.ca/beers/';
 app.beers = null;
@@ -40,6 +43,14 @@ app.init = function() {
         // console.log($(this).attr('id'));
         app.getWadDetails($(this).attr('id'));
     });
+
+    // event listener to show the text file
+    $('.wad-list').on("click",".reveal-text", function(e) {
+        console.log('asdf');
+        e.preventDefault();
+        $(this).addClass('hide');
+        $(this).siblings('.text-file').addClass('text-open');
+    })
 
     // event listener for the query button
     $('form').on('submit', function(e) {
@@ -143,7 +154,7 @@ app.showWads = function(wads,idKey='id') {
             ${wad.description}
             </p>
             ${ (wad.rating !== null) ? '<p><span class="info-item">Rating: </span>'+wad.rating+'</p>' : ''}
-            <a href="#" class="wad-anchor"><p>Click for more information</p></a>
+            <p><a href="#" class="wad-anchor">Click for more information</a></p>
         </li>
         `;
         $wadList.append(htmlToAppend);
@@ -225,8 +236,6 @@ app.getSize = function(bytes) {
 // Display the wad information
 app.showWadDetails = function($element, wadDetails, beerPairing) {
     $element.empty();
-    // $element.addClass('do-fade-in');
-    // const beerPairing = app.pairBeer(wadDetails);
     const searchWikiResult = app.searchWiki(wadDetails.title);
     let detailsHtml = `
         <div class='wad-details'>
@@ -234,12 +243,13 @@ app.showWadDetails = function($element, wadDetails, beerPairing) {
             ${app.infoLine('Published',wadDetails.date,'h3')}
             ${app.infoLine('',wadDetails.description,'p',"No description.")}
             ${app.infoLine('Rating',wadDetails.rating)}
-            ${app.infoLine('Base',wadDetails.base)}
-            ${app.infoLine('Bugs',wadDetails.bugs)}
             ${app.infoLine('Credits',wadDetails.credits)}
+            ${app.infoLine('Base',wadDetails.base)}
             ${app.infoLine('Editors used',wadDetails.editors)}
             ${app.infoLine('Build time',wadDetails.buildtime)}
+            ${app.infoLine('Bugs',wadDetails.bugs)}
             ${app.infoLine('File size',app.getSize(wadDetails.size) )}
+            ${app.infoLine('idGames url',`<a href=${wadDetails.url}>${wadDetails.url}</a>`)}
         </div>
     `;
     // Add the beer pairing!
@@ -260,6 +270,19 @@ app.showWadDetails = function($element, wadDetails, beerPairing) {
         ${detailsHtml}
     </div>`;
     $element.append(detailsHtml);
+
+    // Attach the text file
+    let textHtml = `
+        <h3>Text File:</h3>
+        <p class="reveal-text"><a href="#">Click to expand the included text file</a></p>
+        <div class="text-file">
+            <pre>
+${wadDetails.textfile}
+            </pre>
+        </div>
+    `;
+
+    $element.append(textHtml);
 
     // Add in reviews section if they exist
     if (wadDetails.reviews.review !== null) {
@@ -284,11 +307,11 @@ app.showWadDetails = function($element, wadDetails, beerPairing) {
 
     // Search the Doom Wiki for the wad, and use it to generate a gallery. If no results, it's fine! We still have the idGames info and the beer pairing.
     searchWikiResult.then(function(result) {
-        if (result.length===0) {
+        if (result.imgSrcArray.length===0) {
             return;
         }
-        let galleryAppend = '<h3>Image Gallery (from DoomWiki): </h3><div class="gallery scrollbox">';
-        result.forEach(function(imgLink) {
+        let galleryAppend = `<h3>Image Gallery (from <a href="${result.url}">DoomWiki</a>): </h3><div class="gallery scrollbox">`;
+        result.imgSrcArray.forEach(function(imgLink) {
             // console.log(imgLink);
             galleryAppend += `
             <div class="img-container">
@@ -309,8 +332,36 @@ app.pairBeer = async function(wad) {
     if (wad.title === null) {wad.title="None"};
     if (wad.description === null) {wad.description="None"};
 
+    // get a list of words in the wad title and description
     let wadWords = wad.title.toLowerCase().split(' ').concat(wad.description.toLowerCase().split(' '));
+    wadWords = wadWords.filter(word => {
+        return word.length>=4;
+    })
+
+    // lets add a few for beer reasons. 0th word is generic descriptor, 1st word is something beer related that might match thematically
+    const beerWordArr = [
+        ['darkness', 'stout'],
+        ['dark','stout'],
+        ['shadow','stout'],
+        ['fire','red'],
+        ['lava','red'],
+        ['hell', 'red'],
+        ['techbase','lager'],
+        ['refinery','pilsner'],
+    ]
+
+    for (let i=0;i<beerWordArr.length;i++) {
+        for (let j=0;j<wadWords.length;j++) {
+            if (wadWords[j].includes(beerWordArr[i][0])) {
+                wadWords.push(beerWordArr[i][1]);
+                console.log( beerWordArr[i]);
+            }
+        }
+    }
+
+    // put this on a scale from -2.5 to 2.5. Seemed like a good idea at the time
     let wadRating = parseInt(wad.rating) - 2.5;
+
 
     let beerList = [];
 
@@ -321,27 +372,46 @@ app.pairBeer = async function(wad) {
         }
         let beerSizeArr = beer.size.toLowerCase().split(" ");
 
-        let weight = wadRating * (parseFloat(beer.price)/parseFloat(beerSizeArr[0]) - 2*parseFloat(beer.abv));
+        // positive ratings favour high price.
+        // Extreme ratings favour higher ABV.
+        let weight = wadRating * (parseFloat(beer.price)/parseFloat(beerSizeArr[0]) - wadRating * parseFloat(beer.abv));
 
+        // no ratings? Have to start somewhere.
         if (parseInt(wad.votes)===0) {
             weight=1;
-        } 
-        if (wadRating > 0 && beer.type === 'Non-Alcoholic Beer') {
-            weight -= 1000;
+        }
+
+        // Non-alcoholic beer is only really an option for bad wads.
+        // Neither are very good.
+        if (beer.type === 'Non-Alcoholic Beer') {
+            if (wadRating > 0) {
+                weight -= 1000;
+            }
+            else {
+                weight -= wadRating;
+            }
         }
         if (beer.size.toLowerCase().includes('keg')) {
             weight /= 1000;
         }
         for (let i=0;i<wadWords.length;i++) {
-            if (wadWords[i].length < 4) {
-                continue;
-            }
             if (beer.country.toLowerCase().includes(wadWords[i])) {
                 weight += 50;
             }
             if (beer.name.toLowerCase().includes(wadWords[i])) {
                 weight += wadWords[i].length * wadWords[i].length * 2;
             }
+
+            if (beer.type.toLowerCase().includes(wadWords[i])) {
+                weight += 10;
+            }
+        }
+
+        if (wadRating > 1.7 && beer.category === "Ontario Craft") {
+            weight += 10;
+        }
+        else if (wadRating < -1.7 && beer.category === "Value") {
+            weight += 10;
         }
 
         beerList.push({weight:weight*(10+Math.random()), beer:beer});
@@ -432,6 +502,7 @@ app.searchWiki = async function(rawTitle) {
         }
     }
 
+    const wikiUrl = searchResults[1][0];
 
     const searchPageInfo = await $.ajax({
         url: app.doomWikiUrl,
@@ -444,14 +515,21 @@ app.searchWiki = async function(rawTitle) {
         }
     });
     const imgArray = searchPageInfo.parse.images;
+    // omit these images!
+    const omitImg=['Cacoward.png','Under_construction_icon-yellow.svg','Gold_Hissy.png','Doom2_title.png','NIWA_logo.png','Quake_Wiki_Logo.png','Top100.png','Hell-1.jpg'];
+    
     const imgSrcArray = imgArray.filter(function(img) {
-        // omit these images!
-        const omitImg=['Cacoward.png','Under_construction_icon-yellow.svg','Gold_Hissy.png','Doom2_title.png','NIWA_logo.png','Quake_Wiki_Logo.png','Top100.png'];
+        // apply omission
         return !(omitImg.includes(img));
     }).map(function(img) {
+        // add root url
         return `${app.doomWikiImgRoot}/${img}`;
     });
-    return imgSrcArray;
+
+    return {
+        imgSrcArray: imgSrcArray,
+        url: app.doomWikiDocRoot+'/'+wikiUrl
+    }
 };
 
 // Get beers from beer store API
