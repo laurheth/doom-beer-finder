@@ -184,6 +184,8 @@ form .radioDiv {
 
 .wad-details {
     flex-grow:1;
+    max-width: calc(100% - 200px - 2rem);
+    overflow-x: hidden;
 }
 
 .ascDesc {
@@ -319,6 +321,9 @@ img {
 @media (max-width:650px) {
     .detailsBeerContainer {
         flex-direction: column;
+    }
+    .wad-details {
+        max-width: 100%;
     }
     .beer {
         margin-left: 0;
