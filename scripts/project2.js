@@ -92,7 +92,7 @@ app.getWads = async function(action='search', query="", type='title', sort='date
     let searchResults;
     try {
         searchResults = await $.ajax({
-            url: 'http://proxy.hackeryou.com',
+            url: 'https://proxy.hackeryou.com',
             dataType: 'json',
             method:'GET',
             data: {
@@ -179,7 +179,7 @@ app.getWadDetails = async function(wadID) {
     try {
         // query the idgames archive for full details
         const getResults = await $.ajax({
-            url: 'http://proxy.hackeryou.com',
+            url: 'https://proxy.hackeryou.com',
             dataType: 'json',
             method:'GET',
             data: {
@@ -537,7 +537,7 @@ app.getBeers = async function() {
     let beers=null;
     try {
         beers = await $.ajax({
-        url: 'http://proxy.hackeryou.com',
+        url: 'https://proxy.hackeryou.com',
             dataType: 'json',
             method:'GET',
             data: {
