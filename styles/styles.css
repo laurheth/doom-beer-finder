@@ -197,6 +197,11 @@ form .radioDiv {
     font-weight: bolder;
 }
 
+.subtitle {
+    font-weight: bolder;
+    font-size: 2rem;
+}
+
 .do-fade-in {
     animation-duration: 1s;
     animation-name: fadein;
@@ -217,7 +222,7 @@ form .radioDiv {
 }
 
 .text-open {
-    overflow-y: scroll;
+    overflow: scroll;
     border: 1px red solid;
     padding: 0.5rem;
     height: 480px;

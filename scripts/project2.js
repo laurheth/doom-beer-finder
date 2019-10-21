@@ -147,14 +147,16 @@ app.showWads = function(wads,idKey='id') {
         }
         const htmlToAppend = `
         <li class="wad-item box summary" id="${wad[idKey]}">
-            <h2>${wad.title}</h2>
-            <h3>Author: ${wad.author}</h3>
-            ${('date' in wad) ? ('<h3>Published: ' + wad.date + '</h3>') : ""}
-            <p>
-            ${wad.description}
-            </p>
-            ${ (wad.rating !== null) ? '<p><span class="info-item">Rating: </span>'+wad.rating+'</p>' : ''}
-            <p><a href="#" class="wad-anchor">Click for more information</a></p>
+            <article>
+                <h2>${wad.title}</h2>
+                <p class="subtitle">Author: ${wad.author}</p>
+                ${('date' in wad) ? ('<p class="subtitle">Published: ' + wad.date + '</p>') : ""}
+                <p>
+                ${wad.description}
+                </p>
+                ${ (wad.rating !== null) ? '<p><span class="info-item">Rating: </span>'+wad.rating+'</p>' : ''}
+                <p><a href="#" class="wad-anchor">Click for more information</a></p>
+            </article>
         </li>
         `;
         $wadList.append(htmlToAppend);
@@ -238,9 +240,9 @@ app.showWadDetails = function($element, wadDetails, beerPairing) {
     $element.empty();
     const searchWikiResult = app.searchWiki(wadDetails.title);
     let detailsHtml = `
-        <div class='wad-details'>
-            ${app.infoLine('Author',wadDetails.author,'h3','Anonymous.')}
-            ${app.infoLine('Published',wadDetails.date,'h3')}
+        <section class='wad-details'>
+            ${app.infoLine('Author',wadDetails.author,'p class="subtitle"','Anonymous.')}
+            ${app.infoLine('Published',wadDetails.date,'p class="subtitle"')}
             ${app.infoLine('',wadDetails.description,'p',"No description.")}
             ${app.infoLine('Rating',wadDetails.rating)}
             ${app.infoLine('Credits',wadDetails.credits)}
@@ -250,36 +252,39 @@ app.showWadDetails = function($element, wadDetails, beerPairing) {
             ${app.infoLine('Bugs',wadDetails.bugs)}
             ${app.infoLine('File size',app.getSize(wadDetails.size) )}
             ${app.infoLine('idGames url',`<a href=${wadDetails.url}>${wadDetails.url}</a>`)}
-        </div>
+        </section>
     `;
     // Add the beer pairing!
     if (beerPairing != null) {
         detailsHtml += `
-        <div class="beer">
+        <section class="beer">
             <h3>Recommended beer pairing:</h3>
             <div class="img-container">
             <img src="${beerPairing.image_url}">
             </div>
             <p>${beerPairing.name}</p>
-        </div>
+        </section>
         `;
     }
     detailsHtml = `
     ${app.infoLine('',wadDetails.title,'h2','Not named.')}
     <div class="detailsBeerContainer do-fade-in">
         ${detailsHtml}
-    </div>`;
+    </div>
+    `;
     $element.append(detailsHtml);
 
     // Attach the text file
     let textHtml = `
-        <h3>Text File:</h3>
-        <p class="reveal-text"><a href="#">Click to expand the included text file</a></p>
-        <div class="text-file">
-            <pre>
-${wadDetails.textfile}
-            </pre>
-        </div>
+        <section>
+            <h3>Text File:</h3>
+            <p class="reveal-text"><a href="#">Click to expand the included text file</a></p>
+            <div class="text-file">
+                <pre>
+    ${wadDetails.textfile}
+                </pre>
+            </div>
+        </section>
     `;
 
     $element.append(textHtml);
@@ -301,7 +306,7 @@ ${wadDetails.textfile}
                 </div>
             `;
         });
-        reviewHtml = '<h3>Reviews:</h3><div class="reviews scrollbox">' + reviewHtml + '</div>';
+        reviewHtml = '<section><h3>Reviews:</h3><div class="reviews scrollbox">' + reviewHtml + '</div></section>';
         $element.append(reviewHtml);
     }
 
