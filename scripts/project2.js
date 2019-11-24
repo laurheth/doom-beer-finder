@@ -40,13 +40,11 @@ app.init = function() {
         // $(this).addClass('hide');
         e.preventDefault();
         $(this).removeClass('summary');
-        // console.log($(this).attr('id'));
         app.getWadDetails($(this).attr('id'));
     });
 
     // event listener to show the text file
     $('.wad-list').on("click",".reveal-text", function(e) {
-        console.log('asdf');
         e.preventDefault();
         $(this).addClass('hide');
         $(this).siblings('.text-file').addClass('text-open');
@@ -66,7 +64,6 @@ app.init = function() {
         const queryBy = app.$queryBy.val();
         const sortBy = app.$sortBy.val();
         let ascOrDesc=$('input[name="ascDesc"]:checked').val();
-        // console.log(`console.logapp.getWads(${queryType},${query},${queryBy})`);
         app.getWads(queryType,query,queryBy,sortBy, 20, ascOrDesc);
     });
 
@@ -116,8 +113,6 @@ app.getWads = async function(action='search', query="", type='title', sort='date
             app.showWads(searchResults.content.file)
         }
     } catch(err) {
-        // console.log(err);
-        // console.log(searchResults);
         if ('warning' in searchResults) {
             app.showBox(`<p>${searchResults.warning.message}</p>`,'warning')
         }
@@ -130,7 +125,6 @@ app.showWads = function(wads,idKey='id') {
     if (!Array.isArray(wads)) {
         wads = [wads];
     }
-    // console.log(wads);
     $wadList = $('.wad-list');
     $wadList.empty();
 
@@ -165,7 +159,6 @@ app.showWads = function(wads,idKey='id') {
 app.showBox = function(contents, addClass="") {
     $wadList = $('.wad-list');
     $wadList.empty();
-    // console.log($wadList);
     $wadList.append(`
     <li class="box flex-container ${addClass}">
         ${contents}
@@ -197,7 +190,6 @@ app.getWadDetails = async function(wadID) {
 
         app.showWadDetails($wadElement, getResults.content, pairing);
     } catch(err) {
-        console.log(err);
         $wadElement.append('<p class="warning">Something went wrong.</p>');
     }
 };
@@ -315,7 +307,6 @@ app.showWadDetails = function($element, wadDetails, beerPairing) {
         }
         let galleryAppend = `<h3>Image Gallery (from <a href="${result.url}">DoomWiki</a>): </h3><div class="gallery scrollbox">`;
         result.imgSrcArray.forEach(function(imgLink) {
-            // console.log(imgLink);
             galleryAppend += `
             <div class="img-container">
                 <a href="${imgLink}"><img src="${imgLink}?width=300" alt="Images for ${wadDetails.title} from DoomWiki."></a>
@@ -358,7 +349,6 @@ app.pairBeer = async function(wad) {
         for (let j=0;j<wadWords.length;j++) {
             if (wadWords[j].includes(beerWordArr[i][0])) {
                 wadWords.push(beerWordArr[i][1]);
-                console.log( beerWordArr[i]);
             }
         }
     }
@@ -444,11 +434,9 @@ app.pairBeer = async function(wad) {
             await new Promise((resolve,reject) => {
                 let img = new Image();
                 img.onload = function() {
-                    // console.log('image exists')
                     resolve();
                 };
                 img.onerror = function() {
-                    // console.log('image does not exist')
                     reject();
                 };
                 img.src=beer.image_url;
@@ -458,7 +446,6 @@ app.pairBeer = async function(wad) {
                 imgExists=false;
             });
         } catch(err) {
-            console.log(err);
             imgExists=false;
         }
         
@@ -488,7 +475,6 @@ app.searchWiki = async function(rawTitle) {
                 redirects: 'resolve',
             }       
         });
-        // console.log(searchResults);
         if (searchResults[1].length===0) {
             let splitTitle = title.split(' ');
             splitTitle = splitTitle.map(function(word) {
@@ -550,7 +536,6 @@ app.getBeers = async function() {
         });
         return beers;
     } catch(err) {
-        console.log(err);
         return null;
     }
 };
