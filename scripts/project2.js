@@ -147,16 +147,14 @@ app.showWads = function(wads,idKey='id') {
         }
         const htmlToAppend = `
         <li class="wad-item box summary" id="${wad[idKey]}">
-            <article>
-                <h2>${wad.title}</h2>
-                <p class="subtitle">Author: ${wad.author}</p>
-                ${('date' in wad) ? ('<p class="subtitle">Published: ' + wad.date + '</p>') : ""}
-                <p>
-                ${wad.description}
-                </p>
-                ${ (wad.rating !== null) ? '<p><span class="info-item">Rating: </span>'+wad.rating+'</p>' : ''}
-                <p><a href="#" class="wad-anchor">Click for more information</a></p>
-            </article>
+            <h2>${wad.title}</h2>
+            <p class="subtitle">Author: ${wad.author}</p>
+            ${('date' in wad) ? ('<p class="subtitle">Published: ' + wad.date + '</p>') : ""}
+            <p>
+            ${wad.description}
+            </p>
+            ${ (wad.rating !== null) ? '<p><span class="info-item">Rating: </span>'+wad.rating+'</p>' : ''}
+            <p><a href="#" class="wad-anchor">Click for more information</a></p>
         </li>
         `;
         $wadList.append(htmlToAppend);
@@ -260,7 +258,7 @@ app.showWadDetails = function($element, wadDetails, beerPairing) {
         <section class="beer">
             <h3>Recommended beer pairing:</h3>
             <div class="img-container">
-            <img src="${beerPairing.image_url}">
+            <img src="${beerPairing.image_url}" alt="${beerPairing.name}">
             </div>
             <p>${beerPairing.name}</p>
         </section>
@@ -299,14 +297,14 @@ app.showWadDetails = function($element, wadDetails, beerPairing) {
         }
         reviewArr.forEach(function(review) {
             reviewHtml += `
-                <div class="box review">
+                <li class="box review">
                     <p class="info-item">${(review.username !== null) ? review.username : "Anonymous"}</p>
                     <p>Gave rating: ${review.vote}</p>
                     <p>${review.text}</p>
-                </div>
+                </li>
             `;
         });
-        reviewHtml = '<section><h3>Reviews:</h3><div class="reviews scrollbox">' + reviewHtml + '</div></section>';
+        reviewHtml = '<section><h3>Reviews:</h3><ul class="reviews scrollbox">' + reviewHtml + '</ul></section>';
         $element.append(reviewHtml);
     }
 
@@ -320,11 +318,12 @@ app.showWadDetails = function($element, wadDetails, beerPairing) {
             // console.log(imgLink);
             galleryAppend += `
             <div class="img-container">
-                <a href="${imgLink}"><img src="${imgLink}?width=300"></a>
+                <a href="${imgLink}"><img src="${imgLink}?width=300" alt="Images for ${wadDetails.title} from DoomWiki."></a>
             </div>
             `;
         });
         galleryAppend+='</div>'
+        galleryAppend = `<section>${galleryAppend}</section>`;
         $element.append(galleryAppend);
     });
 };
@@ -489,7 +488,7 @@ app.searchWiki = async function(rawTitle) {
                 redirects: 'resolve',
             }       
         });
-        console.log(searchResults);
+        // console.log(searchResults);
         if (searchResults[1].length===0) {
             let splitTitle = title.split(' ');
             splitTitle = splitTitle.map(function(word) {
